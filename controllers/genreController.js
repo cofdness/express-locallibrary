@@ -133,11 +133,55 @@ exports.genre_delete_post = function(req, res, next) {
 };
 
 // Display Genre update form on GET.
-exports.genre_update_get = function(req, res) {
-    res.send('NOT IMPLEMENTED: Genre update GET');
+exports.genre_update_get = function(req, res, next) {
+    async.parallel({
+            genre: callback => {
+                Genre.findById(req.params.id)
+                    .exec(callback);
+            },
+            genre_books: callback => {
+                Book.find({'genre': req.params.id})
+                    .exec(callback);
+            }},
+        (err, results) => {
+            if (err) {
+                return next(err);
+            }
+            else if (results.genre === null){
+                const error = new Error('Genre not found');
+                error.status = 404;
+                return next(error);
+            }
+            //success then render
+            res.render('genre_form', {title: 'Update genre', genre: results.genre, genre_books: results.genre_books})
+        });
 };
 
 // Handle Genre update on POST.
-exports.genre_update_post = function(req, res) {
-    res.send('NOT IMPLEMENTED: Genre update POST');
-};
+exports.genre_update_post = [
+    body('name', 'Genre name required').trim().isLength({min: 1}).escape(),
+    (req, res, next) => {
+        // extract the validation errors from a request
+        const errors = validationResult(req);
+
+        //create genre object with escaped and trimed data
+        const genre = new Genre({
+            name: req.body.name,
+            _id: req.params.id
+        });
+
+        if (!errors.isEmpty()) {
+            //There are error, so render again with sanitized values/ error messages.
+            res.render('genre_form', {title:'Update Genre', genre: genre, errors: errors.array()});
+            return;
+        } else {
+            //Data from form is valid, so check if genre exist or save it...
+            Genre.findByIdAndUpdate(req.params.id, genre, {}, (err, theGenre) => {
+                if (err) return next(err);
+
+                //update successful, redirect
+                res.redirect(theGenre.url);
+            })
+        }
+    }
+]

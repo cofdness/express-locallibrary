@@ -130,7 +130,7 @@ exports.book_create_post = [
             }, (err, results) => {
                 if (err) return next(err);
 
-                genres.forEach((genre, index) => {
+                results.genres.forEach((genre, index) => {
                     if (book.genre.indexOf(results.genres[index]._id) > -1) {
                         results.genres[index].checked = 'true';
                     }
@@ -202,11 +202,100 @@ exports.book_delete_post = function(req, res, next) {
 };
 
 // Display book update form on GET.
-exports.book_update_get = function(req, res) {
-    res.send('NOT IMPLEMENTED: Book update GET');
+exports.book_update_get = function(req, res, next) {
+    async.parallel({
+        book: callback => {
+            Book.findById(req.params.id).populate('author').populate('genre').exec(callback)
+        },
+        authors: callback => {
+            Author.find(callback);
+        },
+        genres: callback => {
+            Genre.find(callback);
+        }
+    },(err, results) => {
+        if (err) return next(err);
+
+        if (results.book === null) {
+            const error = new Error('Book not found');
+            error.status = 404;
+            return next(error);
+        }
+
+        //success, mark our selected genres as checked.
+        results.book.genre.map(genre => {
+            results.genres.forEach(g => {
+                if (genre._id.toString() === g._id.toString()) {
+                    genre.checked = 'true';
+                }
+            })
+            return genre;
+        })
+        res.render('book_form', {title:'Update book', book: results.book, authors: results.authors, genres: results.genres});
+    });
 };
 
 // Handle book update on POST.
-exports.book_update_post = function(req, res) {
-    res.send('NOT IMPLEMENTED: Book update POST');
-};
+exports.book_update_post = [
+    //convert genres to array
+    (req, res, next) => {
+        if (!(req.body.genres instanceof Array)) {
+            if(typeof req.body.genres === 'undefined') {
+                req.body.genres = [];
+            } else {
+                req.body.genres = new Array(req.body.genres);
+            }
+        }
+        next();
+    },
+    //validate and sanitise fields.
+    body('title', 'Title must not be empty').trim().isLength({min: 1}).escape(),
+    body('author', 'Author must not be empty').trim().isLength({min: 1}).escape(),
+    body('summary', 'Summary must not be empty').trim().isLength({min: 1}).escape(),
+    body('isbn', 'ISBN must not be empty').trim().isLength({min: 1}).escape(),
+    body('genre.*').escape(),
+    (req, res, next) => {
+        const errors = validationResult(req);
+
+        const book = new Book({
+            title: req.body.title,
+            author: req.body.author,
+            summary: req.body.summary,
+            isbn: req.body.isbn,
+            genre: (typeof req.body.genres === "undefined" ? [] : req.body.genres),
+            _id: req.params.id //This is required, or new ID will be assigned!
+        });
+
+        if (!(errors.isEmpty())) {
+            //There are errors. Render page again with sanitized values/error message.
+
+            //Get all authors and genres for form.
+            async.parallel({
+                authors: callback => {
+                    Author.find(callback);
+                },
+                genres: callback => {
+                    Genre.find(callback);
+                }
+            }, (err, results) => {
+                if (err) return next(err);
+
+                results.genres.forEach((genre, index) => {
+                    if (book.genre.indexOf(results.genres[index]._id) > -1) {
+                        results.genres[index].checked = 'true';
+                    }
+                })
+                res.render('book_form', {title: 'Create Book', authors: results.authors, genres: results.genres});
+                return;
+            })
+        } else {
+            //Data is valid. Update it
+            Book.findByIdAndUpdate(req.params.id, book, {}, (err, thebook) => {
+                if (err) return next(err);
+
+                //successful update, redirect to book url
+                res.redirect(thebook.url);
+            })
+        }
+    }
+]
