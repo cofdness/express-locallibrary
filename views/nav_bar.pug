@@ -1,0 +1,26 @@
+nav.navbar.navbar-expand-lg.navbar-light.bg-light.border-bottom
+    a.navbar-brand(href='/')
+        i.icn-logo.material-icons bookmark_border
+        | Local Library
+    button.navbar-toggler(type='button', data-toggle='collapse', data-target='#navbar') &#x2630;
+    div#navbar.collapse.navbar-collapse
+        ul.navbar-nav.ml-auto.mt-2.mt-lg-0
+            if !currentUser
+                li.nav-item
+                    a.nav-link(href='/register') Sign Up
+            li.nav-item
+                a.nav-link(href='/about') About
+            li.nav-item
+                a.nav-link(href='/contact') Contact
+            li.nav-item
+                a.nav-link(href='/profile') My Profile
+            form.form-inline.my-2.my-lg-0
+                input.form-control.mr-sm-2(type="text" placeholder="Search" aria-label="Search")
+                button.btn.btn-secondary.my-2.my-sm-0(type="submit") Search
+        if currentUser
+            div
+                img.avatar.img-circle.hidden-xs-down(src='/images/avatar.png', alt='avatar')
+                a.btn.btn-dark.pull-md-right.my-2.my-sm-0(href='/logout') Log out
+        else
+            li.btn.btn-light
+                a.pull-md-right(href='/login') Login

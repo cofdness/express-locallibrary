@@ -1,0 +1,29 @@
+doctype html(lang='en')
+head
+    title= title
+    meta(charset='utf-8')
+    link(rel='stylesheet', href='https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css')
+    link(href='https://fonts.googleapis.com/icon?family=Material+Icons', rel='stylesheet')
+    script(src='https://code.jquery.com/jquery-3.3.1.slim.min.js')
+    script(src='https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js')
+    link(rel='stylesheet', href='/stylesheets/style.css')
+body
+    div.flex-container
+        form.form-controller(method='POST', action='')
+            div.form-group
+                label(for='name') Name
+                input#name.form-control(type='text', required='true', placeholder='David Micheal', name='name', value=undefined === user ? '' : user.name)
+            div.form-group
+                label(for='email') Email
+                input#email.form-control(type='email', required='true', placeholder='abc@gmail.com', name='email', value=undefined === user ? '' : user.email)
+            div.form-group
+                label(for='password') Password
+                input#password.form-control(type='password', required='true', name='password')
+            div.form-group
+                label(for='confirmpassword') Confirm password
+                input#confirmpassword.form-control(type='password', required='true', name='confirmpassword')
+            button.btn.btn-primary(type='submit') Submit
+        if errors
+            ul
+                for error in errors
+                    li #{error.msg}
