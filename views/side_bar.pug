@@ -1,0 +1,12 @@
+div.sidebar-heading Library
+div.list-group.list-group-flush
+    a.list-group-item.list-group-item-action.bg-light(href='/catalog') Home
+    a.list-group-item.list-group-item-action.bg-light(href='/catalog/books') All books
+    a.list-group-item.list-group-item-action.bg-light(href='/catalog/authors') All authors
+    a.list-group-item.list-group-item-action.bg-light(href='/catalog/genres') All genres
+    a.list-group-item.list-group-item-action.bg-light(href='/catalog/bookinstances') All book-instances
+    if currentUser
+        a.list-group-item.list-group-item-action.bg-light(href='/catalog/book/create') Create new book
+        a.list-group-item.list-group-item-action.bg-light(href='/catalog/author/create') Create new author
+        a.list-group-item.list-group-item-action.bg-light(href='/catalog/genre/create') Create new genre
+        a.list-group-item.list-group-item-action.bg-light(href='/catalog/bookinstance/create') Create new book instance (copy)
