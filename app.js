@@ -18,7 +18,8 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
 
 //database
-const mongoDB = "mongodb://phung:Phung123@localhost:27017/locallibrary?retryWrites=true";
+const dev_db_url = "mongodb://phung:Phung123@localhost:27017/locallibrary?retryWrites=true";
+const mongoDB = process.env.MONGODB_URI || dev_db_url;
 mongoose.connect(mongoDB, {useNewUrlParser: true, useUnifiedTopology: true});
 
 const db = mongoose.connection;
