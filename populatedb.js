@@ -20,7 +20,7 @@ const BookInstance = require('./models/bookinstance');
 const mongoose = require('mongoose');
 //const mongoDB = "mongodb://phung:Phung123@localhost:27017/locallibrary?retryWrites=true"
 const devDbUrl = "mongodb+srv://phungAdmin:yswnZfH6dyaPSVh5@locallib.fttrc.mongodb.net/local_library?authSource=admin&replicaSet=atlas-1p3w7f-shard-0&w=majority&readPreference=primary&appname=MongoDB%20Compass&retryWrites=true&ssl=true";
-const mongoDB = process.env.MONGODB_URL || devDbUrl;
+const mongoDB = process.env.MONGODB_URI || devDbUrl;
 mongoose.connect(mongoDB, {useNewUrlParser: true, useUnifiedTopology: true});
 mongoose.Promise = global.Promise;
 const db = mongoose.connection;
